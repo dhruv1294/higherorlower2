@@ -1,6 +1,8 @@
 package com.example.higherorlower;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -11,33 +13,27 @@ import android.widget.Toast;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    int in1;
-    public void generateNumber(){
-        Random rand= new Random();
-        in1=rand.nextInt(20)+1;
-    }
+    int randomNumber;
+    MainViewModel mainViewModel;
 
     public void answer(View view)
     {
-        Log.i("info", Integer.toString(in1));
+        Log.i("info", Integer.toString(randomNumber));
 
         EditText input= (EditText) findViewById(R.id.inputnum);
-        int in = Integer.valueOf(input.getText().toString());
+        int givenNumber = Integer.parseInt(input.getText().toString());
 
-        //int i=0;
-        //while(i==0)
-        if(in>in1)
+        if(givenNumber> randomNumber)
         {
             Toast.makeText(this, "Try Lower", Toast.LENGTH_LONG).show();
         }
-        else if(in<in1)
+        else if(givenNumber< randomNumber)
         {
-            Toast.makeText(this, "TRy Higher", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Try Higher", Toast.LENGTH_LONG).show();
         }
         else {
-            Toast.makeText(this, "Very good! Try Again", Toast.LENGTH_SHORT).show();
-           // i=1;
-            generateNumber();
+            Toast.makeText(this, "Very good! Guess another random number!", Toast.LENGTH_SHORT).show();
+            mainViewModel.getNewRandom();
         }
 
     }
@@ -46,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        generateNumber();
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getRandomLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                randomNumber = integer;
+            }
+        });
     }
 }
